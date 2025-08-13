@@ -1,0 +1,411 @@
+{
+  "info": {
+    "name": "LUGX Gaming - Game Service API",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "lgx_game_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Get basic service information and status"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Games",
+      "item": [
+        {
+          "name": "Get All Games",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games?limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["games"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of games to return"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of games to skip"
+                },
+                {
+                  "key": "category",
+                  "value": "1",
+                  "disabled": true,
+                  "description": "Filter by category ID"
+                },
+                {
+                  "key": "search",
+                  "value": "cyber",
+                  "disabled": true,
+                  "description": "Search games by name"
+                }
+              ]
+            },
+            "description": "Retrieve all games with optional filtering and pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Game by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["games", "1"]
+            },
+            "description": "Get a specific game by its ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Game",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.game.id) {",
+                  "        pm.collectionVariables.set('gameId', response.data.game.id);",
+                  "        console.log('Game ID saved:', response.data.game.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cyberpunk 2077\",\n  \"categoryId\": 1,\n  \"price\": 59.99,\n  \"originalPrice\": 79.99,\n  \"image\": \"cyberpunk2077.jpg\",\n  \"filters\": [\"AAA\", \"RPG\", \"Open World\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/games",
+              "host": ["{{baseUrl}}"],
+              "path": ["games"]
+            },
+            "description": "Create a new game in the catalog"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Game",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cyberpunk 2077 - Ultimate Edition\",\n  \"price\": 49.99,\n  \"originalPrice\": 79.99\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/games/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["games", "1"]
+            },
+            "description": "Update an existing game"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Game",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["games", "1"]
+            },
+            "description": "Delete a game from the catalog"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "Get all game categories"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Horror\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "Create a new game category"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Survival Horror\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "1"]
+            },
+            "description": "Update an existing category"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "1"]
+            },
+            "description": "Delete a category (only if no games use it)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sample Data",
+      "item": [
+        {
+          "name": "Create Sample Games",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"The Witcher 3: Wild Hunt\",\n  \"categoryId\": 5,\n  \"price\": 39.99,\n  \"originalPrice\": 59.99,\n  \"image\": \"witcher3.jpg\",\n  \"filters\": [\"RPG\", \"Open World\", \"Fantasy\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/games",
+              "host": ["{{baseUrl}}"],
+              "path": ["games"]
+            },
+            "description": "Create sample game data for testing"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Games by Name",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/games?search=witcher&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["games"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "witcher"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Search for games by name"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+} 

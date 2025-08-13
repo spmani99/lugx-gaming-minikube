@@ -1,0 +1,623 @@
+{
+  "info": {
+    "name": "LUGX Gaming - Order Service API (Simplified Auth)",
+    "description": "API collection for Order Service with simplified single API Key authentication. All authenticated users have full access to all endpoints.",
+    "version": "2.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3002",
+      "type": "string"
+    },
+    {
+      "key": "kubernetesUrl",
+      "value": "http://lugx-gaming.local/api/orders",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "lgx_order_k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6",
+      "type": "string",
+      "description": "Get this from the service logs when it starts"
+    },
+    {
+      "key": "orderId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Service Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Get basic service information and status - No authentication required"
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Check service health status - No authentication required"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders - CRUD Operations",
+      "item": [
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.success && response.data.order.id) {",
+                  "        pm.collectionVariables.set('orderId', response.data.order.id);",
+                  "        console.log('Order ID saved:', response.data.order.id);",
+                  "        console.log('API Key Info:', response.apiKeyInfo);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"John Doe\",\n  \"customerEmail\": \"john.doe@example.com\",\n  \"billingAddress\": \"123 Main Street, City, State 12345\",\n  \"items\": [\n    {\n      \"gameId\": 1,\n      \"gameName\": \"Cyberpunk 2077\",\n      \"price\": 59.99,\n      \"quantity\": 1\n    },\n    {\n      \"gameId\": 2,\n      \"gameName\": \"Grand Theft Auto V\",\n      \"price\": 29.99,\n      \"quantity\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Create a new order with customer details and game items. Requires valid API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Number of orders to return (max 100)"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of orders to skip for pagination"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true,
+                  "description": "Filter by payment status (pending, completed, failed)"
+                },
+                {
+                  "key": "customerEmail",
+                  "value": "john",
+                  "disabled": true,
+                  "description": "Search by customer email (partial match)"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "disabled": true,
+                  "description": "Sort field (createdAt, totalAmount, etc.)"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "DESC",
+                  "disabled": true,
+                  "description": "Sort order (ASC or DESC)"
+                }
+              ]
+            },
+            "description": "Get all orders with optional filtering and pagination. Requires API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}"]
+            },
+            "description": "Get a specific order by its ID including all order items. Requires API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentStatus\": \"completed\",\n  \"billingAddress\": \"Updated Address, New City, State 12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}"]
+            },
+            "description": "Update order payment status or billing address. Requires API key authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}"]
+            },
+            "description": "Delete an order and all its items. Requires API key authentication."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Statistics & Analytics",
+      "item": [
+        {
+          "name": "Order Statistics - Last 30 Days",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/stats/orders?days=30",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "orders"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "description": "Number of days to include in statistics"
+                }
+              ]
+            },
+            "description": "Get comprehensive order statistics for the last 30 days including revenue, conversion rates, etc."
+          },
+          "response": []
+        },
+        {
+          "name": "Order Statistics - Last 7 Days",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/stats/orders?days=7",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "orders"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "7"
+                }
+              ]
+            },
+            "description": "Get order statistics for the last 7 days"
+          },
+          "response": []
+        },
+        {
+          "name": "Order Statistics - Custom Period",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/stats/orders?days=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["stats", "orders"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "1",
+                  "description": "Last 24 hours"
+                }
+              ]
+            },
+            "description": "Get order statistics for custom time period (last 24 hours)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sample Orders & Testing",
+      "item": [
+        {
+          "name": "Single Game Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Jane Smith\",\n  \"customerEmail\": \"jane.smith@example.com\",\n  \"billingAddress\": \"456 Oak Avenue, Springfield, IL 62701\",\n  \"items\": [\n    {\n      \"gameId\": 3,\n      \"gameName\": \"The Witcher 3: Wild Hunt\",\n      \"price\": 39.99,\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Create an order with a single game for testing"
+          },
+          "response": []
+        },
+        {
+          "name": "Large Order (Multiple Items)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Gaming Enthusiast\",\n  \"customerEmail\": \"gamer@example.com\",\n  \"billingAddress\": \"789 Gaming Street, Tech City, CA 90210\",\n  \"items\": [\n    {\n      \"gameId\": 1,\n      \"gameName\": \"Cyberpunk 2077\",\n      \"price\": 59.99,\n      \"quantity\": 1\n    },\n    {\n      \"gameId\": 2,\n      \"gameName\": \"Red Dead Redemption 2\",\n      \"price\": 49.99,\n      \"quantity\": 1\n    },\n    {\n      \"gameId\": 3,\n      \"gameName\": \"Call of Duty: Modern Warfare\",\n      \"price\": 59.99,\n      \"quantity\": 1\n    },\n    {\n      \"gameId\": 4,\n      \"gameName\": \"FIFA 24\",\n      \"price\": 69.99,\n      \"quantity\": 2\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Create an order with multiple games for testing large orders"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Orders by Status - Pending",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders?status=pending&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Filter orders by pending payment status"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Orders by Status - Completed",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders?status=completed&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "completed"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Filter orders by completed payment status"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Orders by Customer Email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders?customerEmail=john&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "customerEmail",
+                  "value": "john"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "Search for orders by customer email (partial match)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Invalid Order - Missing Items",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Test User\",\n  \"customerEmail\": \"test@example.com\",\n  \"billingAddress\": \"123 Test Street\",\n  \"items\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Test error handling for empty items array"
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Order - Missing Customer Info",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billingAddress\": \"123 Test Street\",\n  \"items\": [\n    {\n      \"gameId\": 1,\n      \"gameName\": \"Test Game\",\n      \"price\": 10.00,\n      \"quantity\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Test error handling for missing customer name/email"
+          },
+          "response": []
+        },
+        {
+          "name": "Unauthorized - No API Key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Test authentication error (should return 401)"
+          },
+          "response": []
+        },
+        {
+          "name": "Unauthorized - Invalid API Key",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "invalid-key",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            },
+            "description": "Test authentication error with invalid API key (should return 401)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
